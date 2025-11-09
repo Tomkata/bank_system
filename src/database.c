@@ -272,11 +272,12 @@ int db_delete_account(int account_id)
 
 int db_search_accounts_by_name(const char* owner_name, Account** accounts, int* count)
 {
-
+    //query
     int db_search_accounts_by_name = "SELECT id, owner_name, balance, created_at, is_active "
                       "FROM accounts WHERE owner_name LIKE ? AND is_active = 1 "
                       "ORDER BY owner_name;";
 
+//statement
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
