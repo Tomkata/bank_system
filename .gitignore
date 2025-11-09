@@ -1,0 +1,37 @@
+# Compiled files
+*.exe
+*.o
+*.obj
+*.a
+*.lib
+
+# Database files
+*.db
+*.db-journal
+
+# Build directories
+build/
+bin/
+
+# IDE files
+.vscode/
+.vs/
+*.code-workspace
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# SQLite temporary files
+*.db-shm
+*.db-wal
+
+# Test files
+test_*.exe
+test.db
