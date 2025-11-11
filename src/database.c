@@ -273,7 +273,7 @@ int db_delete_account(int account_id)
 int db_search_accounts_by_name(const char* owner_name, Account** accounts, int* count)
 {
     //query
-    int db_search_accounts_by_name = "SELECT id, owner_name, balance, created_at, is_active "
+    const char* sql = "SELECT id, owner_name, balance, created_at, is_active "
                       "FROM accounts WHERE owner_name LIKE ? AND is_active = 1 "
                       "ORDER BY owner_name;";
 
@@ -287,7 +287,7 @@ int db_search_accounts_by_name(const char* owner_name, Account** accounts, int* 
     }
 
     char search_pattern[MAX_NAME + 3];
-    snprintf(search_pattern, sizeof(search_pattern), "%%%s%%", name);
+    snprintf(search_pattern, sizeof(search_pattern), "%%%s%%", owner_name);
     sqlite3_bind_text(stmt, 1, search_pattern, -1, SQLITE_STATIC);
 
     int temp_count = 0;
@@ -313,7 +313,52 @@ int db_search_accounts_by_name(const char* owner_name, Account** accounts, int* 
        *accounts = temp_accounts;
       *count = temp_count;
 
-          return 0;
+         return 0;
+}
+
+int db_filter_accounts_by_balance(double min_balance, Account** accounts, int* count)
+{
+    const char* sql = "SELECT id, owner_name, balance, created_at, is_active "
+                      "FROM accounts WHERE balance > ? AND is_active = 1 "
+                      "ORDER BY balance DESC;";
+
+              
+    sqlite3_stmt* stmt;
+
+        int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
+        if(rc != SQLITE_OK)
+        {
+            return -1;
+        }
+
+        sqlite3_bind_double(stmt, 1,min_balance);
+        
+        int temp_count = 0;
+
+        Account* temp_accounts = malloc(MAX_ACCOUNTS * sizeof(Account));
+
+        while(sqlite3_step(stmt) == SQLITE_ROW)
+        {
+
+            Account* acc = &temp_accounts[temp_count];
+
+            acc->id = sqlite3_column_int(stmt,0);
+            strncpy(acc->owner_name, (const char*)sqlite3_column_text(stmt, 1), MAX_NAME - 1);
+            acc->owner_name[MAX_NAME - 1] = '\0';
+            acc->balance = sqlite3_column_double(stmt, 2);
+            acc->created_at = sqlite3_column_int(stmt, 3);
+            acc->is_active = sqlite3_column_int(stmt, 4);
+
+            temp_count++;
+        }
+     sqlite3_finalize(stmt);
+
+        *accounts = temp_accounts;
+        *count = temp_count;
+
+      return 0;
+
 }
 
 
