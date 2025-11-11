@@ -3,6 +3,7 @@
 #include <string.h>
 #include "account.h"
 #include "database.h"
+#include "helpers.h"
 
 #define DATABASE_FILE "data/bank.db"
 
@@ -24,13 +25,7 @@ void print_menu(void)
     printf("Избери опция: ");
 }
 
-void clear_input_buffer(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) 
-    {}
 
-}
 
 
 

@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "helpers.h"
+
 
 sqlite3 *db = NULL;
 
@@ -393,7 +395,7 @@ static double db_get_double_query(const char* sql)
     {
         fprintf(stderr, "Неуспешно подготвяне на изявление: %s\n", sqlite3_errmsg(db));
         return 0.0;
-    }
+    }   
 
     if (sqlite3_step(stmt) == SQLITE_ROW)
     {
@@ -490,3 +492,37 @@ Account* db_get_poorest_account(void)
 
 
 // transaction statistics
+int db_get_transaction_count(int account_id, TransactionType type)
+{
+    if (is_valid_account_id(account_id))
+    {
+        return 0;
+    }
+    
+    const char* sql = "SELECT COUNT(*) "
+        "FROM transactions  "
+        "WHERE account_id = ? AND type = ?";
+
+        sqlite3_stmt* stmt;
+
+        int rc = sqlite3_prepare_v2(db,sql,-1,&stmt,NULL);
+        if (rc != SQLITE_OK)
+        {
+        fprintf(stderr, "Грешка при подготовка: %s\n", sqlite3_errmsg(db));
+                return 0;       
+        }
+
+        sqlite3_bind_int(stmt,1,account_id);
+        sqlite3_bind_int(stmt,2,(int)type);
+        
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        count = sqlite3_column_int(stmt,0);
+    }
+    
+    sqlite3_finalize(stmt);
+    return count;
+    
+}
+
