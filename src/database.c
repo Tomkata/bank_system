@@ -526,3 +526,60 @@ int db_get_transaction_count(int account_id, TransactionType type)
     
 }
 
+//Преизползваема функция за db_get_total_deposits и db_get_total_withdrawals
+static double db_get_transaction_total(int account_id, TransactionType type)
+{
+    if (!is_valid_account_id(account_id))
+    {
+        return 0.0;
+    }
+    
+    const char* sql = "SELECT SUM(amount) FROM transactions "
+                      "WHERE type = ? AND account_id = ?";
+    
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Грешка при подготовка: %s\n", sqlite3_errmsg(db));
+        return 0.0;
+    }
+    
+    sqlite3_bind_int(stmt, 1, (int)type);       
+    sqlite3_bind_int(stmt, 2, account_id);      
+    
+    double total = 0.0;
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        if (sqlite3_column_type(stmt, 0) != SQLITE_NULL)
+        {
+            total = sqlite3_column_double(stmt, 0);
+        }
+    }
+    
+    sqlite3_finalize(stmt);
+    return total;
+}
+
+
+
+double db_get_total_deposits(int account_id)
+{
+    return db_get_transaction_total(account_id, DEPOSIT);
+}
+
+
+double db_get_total_withdrawals(int account_id)
+{
+    return db_get_transaction_total(account_id, WITHDRAW);
+}
+
+
+
+
+
+
+
+
+
