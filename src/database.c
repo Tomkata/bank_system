@@ -270,6 +270,8 @@ int db_delete_account(int account_id)
     return -1;
 }
 
+
+//search
 int db_search_accounts_by_name(const char* owner_name, Account** accounts, int* count)
 {
     //query
@@ -361,6 +363,34 @@ int db_filter_accounts_by_balance(double min_balance, Account** accounts, int* c
 
 }
 
+
+
+//stats
+
+double db_get_total_balance()
+{
+
+    const char* sql = "SELECT SUM(balance) FROM accounts WHERE is_active = 1";
+
+    sqlite3_stmt* stmt; 
+
+    int rc = sqlite3_prepare_v2(db,sql,-1,&stmt,NULL);
+
+    if (rc != SQLITE_OK)
+    {
+        return 0.0;
+    }
+    double total = 0.0;
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        total = sqlite3_column_double(stmt,0);
+    }
+    
+    sqlite3_finalize(stmt);
+    
+    return total;
+}
 
 
 
