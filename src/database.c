@@ -565,7 +565,7 @@ static double db_get_transaction_total(int account_id, TransactionType type)
 
 
 double db_get_total_deposits(int account_id)
-{
+{   
     return db_get_transaction_total(account_id, DEPOSIT);
 }
 
