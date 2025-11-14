@@ -33,6 +33,7 @@ double db_get_total_balance();
 double db_get_average_balance();
 Account* db_get_richest_account(void);
 Account* db_get_poorest_account(void);
+int db_get_account_count(void);        
 
 // transaction statistics
 int db_get_transaction_count(int account_id, TransactionType type);

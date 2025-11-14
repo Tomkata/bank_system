@@ -575,7 +575,24 @@ double db_get_total_withdrawals(int account_id)
     return db_get_transaction_total(account_id, WITHDRAW);
 }
 
-
+int db_get_account_count(void) {
+    const char* sql = "SELECT COUNT(*) FROM accounts WHERE is_active = 1;";
+    
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    
+    if (rc != SQLITE_OK) {
+        return 0;
+    }
+    
+    int count = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        count = sqlite3_column_int(stmt, 0);
+    }
+    
+    sqlite3_finalize(stmt);
+    return count;
+}
 
 
 
