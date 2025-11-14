@@ -6,6 +6,7 @@
 
 #define DATABASE_FILE "data/bank.db"
 
+// Helper за JSON escape на string
 static void json_escape_string(char *dest, const char *src, size_t dest_size) {
     size_t j = 0;
     for (size_t i = 0; src[i] && j < dest_size - 1; i++) {
@@ -17,7 +18,7 @@ static void json_escape_string(char *dest, const char *src, size_t dest_size) {
     dest[j] = '\0';
 }
 
-
+// Event handler
 static void event_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
@@ -40,7 +41,6 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data) {
                           "</body></html>");
         }
         
-        // Route 2: Get all accounts (JSON)
         else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL)) {
             Account* accounts = NULL;
             int count = 0;
@@ -121,13 +121,7 @@ int main(void) {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
     
-    printf("╔════════════════════════════════════════╗\n");
-    printf("║   Bank System HTTP Server              ║\n");
-    printf("╠════════════════════════════════════════╣\n");
-    printf("║   URL: http://localhost:8000           ║\n");
-    printf("║   API: http://localhost:8000/api/      ║\n");
-    printf("║   Press Ctrl+C to stop                 ║\n");
-    printf("╚════════════════════════════════════════╝\n\n");
+
     
     struct mg_connection *conn = mg_http_listen(&mgr, "http://0.0.0.0:8000", event_handler, NULL);
     
