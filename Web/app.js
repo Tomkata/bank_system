@@ -74,6 +74,4 @@ async function reloadAll() {
 window.addEventListener('DOMContentLoaded', () => {
     loadStats();
     loadAccounts();
-    
-  
 }); 
