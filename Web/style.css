@@ -71,7 +71,7 @@ header p{
 }
 
 /* Accounts Section */
-..accounts-section {
+.accounts-section {
     background: white;
     padding: 30px;
     border-radius: 15px;
