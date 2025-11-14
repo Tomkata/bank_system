@@ -1,11 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Bank System Dashboard</title>
 </head>
+
 <body>
-    
+    <div class="container">
+        <header>
+            <h1>Bank System Dashboard</h1>
+            <p>Real-time banking dashboard</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="stats-icon">💰</div>
+                <div class="stats-info">
+                    <h3>Total balance</h3>
+                    <p class="stats-value" id="total-balance">Loading...</p>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-icon">👥</div>
+                <div class="stats-info">
+                    <h3>Total Accounts</h3>
+                    <p class="stats-value" id="account-count">Loading...</p>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-icon">📈</div>
+                <div class="stats-info">
+                    <h3>Average Balance</h3>
+                    <p class="stats-value" id="average-balance">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Accounts Table -->
+        <div class="accounts-section">
+            <div class="section-header">
+                <h2>All Accounts</h2>
+                <button class="btn-refresh" onclick="loadAccounts   ()">Refresh</button>
+            </div>
+
+            <div class="table-container">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>Owner Name</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-tbody">
+                        <tr>
+                            <td colspan="4" class="loading">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Author: Toma Andreev</p>
+                <p>Find me on:</p>
+
+            <div class="socials-container">
+                <a href="https://www.instagram.com/toma_andreev/" target="_blank">
+                    <i class="fa fa-instagram"></i></a>
+
+                <a href="https://github.com/Tomkata" target="_blank">
+                    <i class="fa fa-github"></i></a>
+
+                <a href="https://www.linkedin.com/in/toma-andreev-5a8b9729a/" target="_blank">
+                    <i class="fa fa-linkedin-square"></i></a>
+            </div>
+
+
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+
 </body>
+
 </html>

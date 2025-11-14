@@ -28,18 +28,20 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data) {
                (int)hm->uri.len, hm->uri.buf);
         
         // Route 1: Homepage
-        if (mg_match(hm->uri, mg_str("/"), NULL)) {
-            mg_http_reply(c, 200, "Content-Type: text/html\r\n",
-                          "<html><body>"
-                          "<h1>Bank System API</h1>"
-                          "<p>Available endpoints:</p>"
-                          "<ul>"
-                          "<li><a href='/api/test'>GET /api/test</a> - Test endpoint</li>"
-                          "<li><a href='/api/accounts'>GET /api/accounts</a> - List all accounts</li>"
-                          "<li><a href='/api/stats'>GET /api/stats</a> - Statistics</li>"
-                          "</ul>"
-                          "</body></html>");
-        }
+        if (mg_match(hm->uri, mg_str("/"), NULL) || 
+    mg_match(hm->uri, mg_str("/index.html"), NULL)) {
+    struct mg_http_serve_opts opts = {.root_dir = "web"};
+    mg_http_serve_file(c, hm, "web/index.html", &opts);
+}
+else if (mg_match(hm->uri, mg_str("/style.css"), NULL)) {
+    struct mg_http_serve_opts opts = {.root_dir = "web"};
+    mg_http_serve_file(c, hm, "web/style.css", &opts);
+}
+else if (mg_match(hm->uri, mg_str("/app.js"), NULL)) {
+    struct mg_http_serve_opts opts = {.root_dir = "web"};
+    mg_http_serve_file(c, hm, "web/app.js", &opts);
+}
+        
         
         else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL)) {
             Account* accounts = NULL;
