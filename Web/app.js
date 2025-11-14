@@ -1,7 +1,7 @@
 const API_BASE = "http://localhost:8000/api";
 
 
-async function loadsStats(params) {
+async function loadStats(params) {
 
     try {
 
@@ -30,7 +30,7 @@ async function loadsStats(params) {
     }
 }
 
-async function loadsAccounts() {
+async function loadAccounts() {
     try {
         const response = await fetch(`${API_BASE}/accounts`);
 
@@ -65,8 +65,15 @@ function formatDate(timestamp) {
     return new Date(timestamp * 1000).toLocaleDateString();
 }
 
+async function reloadAll() {
+    await loadStats();
+    await loadAccounts();
+    location.reload();
+}
 
-window.onload = function () {
-    loadsStats();
-    loadsAccounts();
-};
+window.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadAccounts();
+    
+  
+}); 
