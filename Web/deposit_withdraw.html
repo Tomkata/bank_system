@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Deposit & Withdraw - Bank System</title>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="nav">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="deposit_withdraw.html" class="nav-link active">Deposit/Withdraw</a>
+            <a href="transfer.html" class="nav-link">Transfer</a>
+            <a href="account.html" class="nav-link">Account</a>
+        </div>
+
+        <header class="header">
+            <h1>Deposit & Withdraw</h1>
+            <p>Manage your account transactions.</p>
+        </header>
+
+        <div class="transaction-section">
+            <h2>Deposit Money</h2>
+            <form id="deposit-form" class="transaction-form">
+                <div class="form-group">
+                    <label for="deposit-account-id">Account ID:</label>
+                    <input type="number" id="deposit-account-id" name="account_id" 
+                           required min="1" placeholder="Enter account ID">
+                </div>
+                
+                <div class="form-group">
+                    <label for="deposit-amount">Amount (lv):</label>
+                    <input type="number" id="deposit-amount" name="amount" 
+                           required min="0.01" step="0.01" placeholder="0.00">
+                </div>
+                
+                <button type="submit" class="btn-submit btn-deposit">💰 Deposit</button>
+            </form>
+            <div id="deposit-message" class="form-message"></div>
+        </div>
+        
+        <div class="transaction-section">
+            <h2>Withdraw Money</h2>
+            <form id="withdraw-form" class="transaction-form">
+                <div class="form-group">
+                    <label for="withdraw-account-id">Account ID:</label>
+                    <input type="number" id="withdraw-account-id" name="account_id" 
+                           required min="1" placeholder="Enter account ID">
+                </div>
+                
+                <div class="form-group">
+                    <label for="withdraw-amount">Amount (lv):</label>
+                    <input type="number" id="withdraw-amount" name="amount" 
+                           required min="0.01" step="0.01" placeholder="0.00">
+                </div>
+                
+                <button type="submit" class="btn-submit btn-withdraw">💸 Withdraw</button>
+            </form>
+            <div id="withdraw-message" class="form-message"></div>
+        </div>
+
+        <div class="accounts-helper">
+            <h3>Available Accounts</h3>
+            <div id="accounts-list" class="accounts-quick-list">
+                Loading accounts...
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Author: Toma Andreev</p>
+            <p>Find me on:</p>
+            <div class="socials-container">
+                <a href="https://www.instagram.com/toma_andreev/" target="_blank">
+                    <i class="fa fa-instagram"></i>
+                </a>
+                <a href="https://github.com/Tomkata" target="_blank">
+                    <i class="fa fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/toma-andreev-5a8b9729a/" target="_blank">
+                    <i class="fa fa-linkedin-square"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="deposit_withdraw.js"></script>
+</body>
+</html>

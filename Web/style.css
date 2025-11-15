@@ -218,3 +218,105 @@ header p{
     font-size: 18px;
     
 }
+
+.nav{
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+.nav a{
+    text-decoration: none;
+    color: white;
+    font-size: 1.1em;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+    border: 2px solid white;
+}
+
+.login{
+    position: absolute;
+    top: 42px;
+    right: 30px;
+}
+.login a{
+    text-decoration: none;
+    color: white;
+    font-size: 1.1em;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+    border: 2px solid white;
+}
+
+.nav a:hover, .login a:hover{
+    background: white;
+    color: #667eea;
+}
+.nav-link.active{
+    background: white;
+    color: #667eea;
+}
+
+.transaction-section{
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.transaction-section h2{
+    color: #333;
+    margin-bottom: 20px;
+}
+.transaction-form{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.form-group{
+    display: flex;
+    flex-direction: column;
+}
+.form-group label{
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+.form-group input{
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+.form-message{
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #d9534f;
+}
+.transaction-section .btn-submit{
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease;
+    align-self: center;
+}
+.transaction-section .btn-submit:hover{
+    background: #5568d3;
+}
+.accounts-helper{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.accounts-helper h3{
+    color: #333;
+    margin-bottom: 15px;
+}

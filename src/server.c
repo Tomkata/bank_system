@@ -38,6 +38,13 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/index.html", &opts);
         }
+        else if (mg_match(hm->uri, mg_str("/"), NULL) ||
+            mg_match(hm->uri, mg_str("/deposit_withdraw.html"), NULL))
+        {
+             struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/deposit_withdraw.html", &opts);
+        }
+        
         else if (mg_match(hm->uri, mg_str("/style.css"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
