@@ -52,6 +52,10 @@ async function loadAccounts() {
                     <td>${formatDate(account.created_at)}</td>
                 </tr>
             `).join('')}`;
+        }   
+        else {
+            const accountsTableBody = document.getElementById('accounts-tbody');
+            accountsTableBody.innerHTML = `<tr><td colspan="3">No accounts available.</td></tr>`;
         }
     }
     catch (error) {

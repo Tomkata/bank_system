@@ -33,17 +33,16 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                (int)hm->uri.len, hm->uri.buf);
 
         if (mg_match(hm->uri, mg_str("/"), NULL) ||
-            mg_match(hm->uri, mg_str("/index.html"), NULL))
-        {
-            struct mg_http_serve_opts opts = {.root_dir = "web"};
-            mg_http_serve_file(c, hm, "web/index.html", &opts);
-        }
-        else if (mg_match(hm->uri, mg_str("/"), NULL) ||
-            mg_match(hm->uri, mg_str("/deposit_withdraw.html"), NULL))
-        {
-             struct mg_http_serve_opts opts = {.root_dir = "web"};
-            mg_http_serve_file(c, hm, "web/deposit_withdraw.html", &opts);
-        }
+    mg_match(hm->uri, mg_str("/index.html"), NULL))
+            {
+                struct mg_http_serve_opts opts = {.root_dir = "web"};
+                mg_http_serve_file(c, hm, "web/index.html", &opts);
+            }
+        else if (mg_match(hm->uri, mg_str("/deposit_withdraw.html"), NULL))
+            {
+                struct mg_http_serve_opts opts = {.root_dir = "web"};
+                mg_http_serve_file(c, hm, "web/deposit_withdraw.html", &opts);
+            }
         
         else if (mg_match(hm->uri, mg_str("/style.css"), NULL))
         {
@@ -55,9 +54,14 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/app.js", &opts);
         }
+         else if (mg_match(hm->uri, mg_str("/deposit_withdraw.js"), NULL))
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/deposit_withdraw.js", &opts);
+        }
 
-
-        else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL))
+        else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL) ||
+                mg_match(hm->uri, mg_str("/api/accounts/"), NULL))
         {
 
             if (mg_strcmp(hm->method, mg_str("GET")) == 0)
@@ -270,9 +274,56 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                               "{\"success\": false, \"error\": \"Method not allowed\"}");
             }
         }
+        else if (mg_match(hm->uri, mg_str("/api/withdraw"), NULL)) {
+    if (mg_strcmp(hm->method, mg_str("POST")) == 0) {
+        int account_id = 0;
+        double amount = 0.0;
         
+        struct mg_str json_body = hm->body;
+        
+        const char *id_start = strstr(json_body.buf, "\"account_id\"");
+        if (id_start) {
+            id_start = strchr(id_start, ':');
+            if (id_start) {
+                sscanf(id_start + 1, "%d", &account_id);
+            }
+        }
+        
+        const char *amount_start = strstr(json_body.buf, "\"amount\"");
+        if (amount_start) {
+            amount_start = strchr(amount_start, ':');
+            if (amount_start) {
+                sscanf(amount_start + 1, "%lf", &amount);
+            }
+        }
+        
+        printf("DEBUG: Withdraw request - ID=%d, amount=%.2f\n", account_id, amount);
+        
+        // Validate
+        if (account_id > 0 && amount > 0) {
+            if (withdraw(account_id, amount) == 0) {
+                char json[256];
+                snprintf(json, sizeof(json),
+                        "{\"success\": true, \"message\": \"Withdrawal successful\", \"account_id\": %d, \"amount\": %.2f}",
+                        account_id, amount);
+                mg_http_reply(c, 200, "Content-Type: application/json\r\n", "%s", json);
+                
+                printf("✓ Withdrawal successful: ID=%d, amount=%.2f\n", account_id, amount);
+            } else {
+                mg_http_reply(c, 500, "Content-Type: application/json\r\n",
+                             "{\"success\": false, \"error\": \"Insufficient funds or invalid account\"}");
+            }
+        } else {
+            mg_http_reply(c, 400, "Content-Type: application/json\r\n",
+                         "{\"success\": false, \"error\": \"Invalid account ID or amount\"}");
+        }
+    } else {
+        mg_http_reply(c, 405, "Content-Type: application/json\r\n",
+                     "{\"success\": false, \"error\": \"Method not allowed\"}");
+    }
+}
+     
 
-       
 
         else
         {
