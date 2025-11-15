@@ -203,6 +203,68 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                           "{\"message\": \"Hello from API!\", \"status\": \"ok\"}");
         }
 
+        else if (mg_match(hm->uri,mg_str("/api/deposit"),NULL))
+        {
+            if(mg_strcmp(hm->method,mg_str("POST"))==0)
+            {
+                    int account_id=0;
+                    double amount=0.0;
+
+                    struct mg_str json_body=hm->body;
+
+                    const char *id_start=strstr(json_body.buf,"\"account_id\"");
+                    if(id_start)
+                    {
+                        id_start=strchr(id_start,':');
+                        if(id_start)
+                        {
+                            sscanf(id_start+1,"%d",&account_id);
+                        }
+                    }
+
+                    const char* amount_start=strstr(json_body.buf,"\"amount\"");
+                    if (amount_start)
+                    {
+                        amount_start=strchr(amount_start,':');
+                        if(amount_start)
+                        {
+                            sscanf(amount_start+1,"%lf",&amount);
+                        }
+                    }
+
+                    printf("DEBUG: Received deposit - account_id=%d, amount=%.2f\n",account_id,amount);  
+
+                    //validate
+                    if(account_id>0 && amount>0)
+                    {
+                        int result=deposit(account_id,amount);
+                        if(result==0)
+                        {   
+                            mg_http_reply(c,200,"Content-Type: application/json\r\n",
+                                          "{\"success\": true, \"message\": \"Deposit successful\"}");
+                            printf("✓ Deposit successful: account_id=%d, amount=%.2f\n",account_id,amount);
+                        }
+                        else
+                        {
+                            mg_http_reply(c,500,"Content-Type: application/json\r\n",
+                                          "{\"success\": false, \"error\": \"Deposit failed\"}");
+                        }
+                    }
+                    else
+                    {
+                        mg_http_reply(c,400,"Content-Type: application/json\r\n",
+                                      "{\"success\": false, \"error\": \"Invalid input\"}");
+                    }
+ 
+            }
+            else
+            {
+                mg_http_reply(c,405,"Content-Type: application/json\r\n",
+                              "{\"success\": false, \"error\": \"Method not allowed\"}");
+            }
+        }
+        
+
        
 
         else
