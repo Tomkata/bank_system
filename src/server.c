@@ -49,6 +49,12 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/style.css", &opts);
         }
+        else if (mg_match(hm->uri,mg_str("/account_details.html"),NULL))
+        {
+          struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/account_details.html", &opts);
+        }
+        
         else if (mg_match(hm->uri,mg_str("/transfer.html"),NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};

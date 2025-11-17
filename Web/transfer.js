@@ -29,7 +29,7 @@ async function loadAccounts() {
         }
 
         tbody.innerHTML = data.accounts.map(a => `
-            <tr>21312
+            <tr>
                 <td>${a.owner_name}</td>
                 <td>${a.balance.toFixed(2)} lv</td>
                 <td>${a.is_active ? "Active" : "Inactive"}</td>
@@ -40,6 +40,11 @@ async function loadAccounts() {
     } catch (err) {
         tbody.innerHTML = `<tr><td colspan="4">Error loading</td></tr>`;
     }
+}
+function reloadAll(){
+     document.getElementById("loader").style.display = "block";
+ loadAccounts();
+ location.reload();
 }
 
 function showMessage(text, type) {

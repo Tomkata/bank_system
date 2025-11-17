@@ -13,7 +13,7 @@
          <a href="index.html" class="nav-link">Dashboard</a>
             <a href="deposit_withdraw.html" class="nav-link">Deposit/Withdraw</a>
             <a href="transfer.html" class="nav-link">Transfer</a>
-            <a href="account.html" class="nav-link">Account Details</a>
+            <a href="account_details.html" class="nav-link">Account Details</a>
         </div>
          <header>
             <h1>Bank System Transfer</h1>
@@ -42,7 +42,9 @@
      <div class="accounts-section">
             <div class="section-header">
                 <h2>All Accounts</h2>
-    <button class="btn-refresh" onclick="reloadAll()">Refresh</button>
+   <button class="btn-refresh" onclick="reloadAll()">Refresh</button>
+    <div class="loader" id="loader"></div>
+
                     </div>
 
             <div class="table-container">

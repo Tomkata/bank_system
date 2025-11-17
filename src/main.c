@@ -72,7 +72,7 @@ int main(void)
                 
                 if(strlen(name) == 0) 
                 {
-                    printf("Името не може да бъде празно!\n");
+                    printf("Името не може да бъде празно!\n");  
                     break;
                 }
                 

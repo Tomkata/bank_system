@@ -70,12 +70,19 @@ function formatDate(timestamp) {
 }
 
 async function reloadAll() {
+
+    document.getElementById("loader").style.display = "block";
+    location.reload();
+
     await loadStats();
     await loadAccounts();
-    location.reload();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
     loadStats();
     loadAccounts();
+
+    setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+    }, 3000);
 }); 
