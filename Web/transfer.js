@@ -1,5 +1,7 @@
 const API_BASE = 'http://localhost:8000/api';
 
+
+//JS прави HTTP заявка към бекенда за трансфер на пари
 async function transferMoney(from, to, amount) {
     const response = await fetch(`${API_BASE}/transfer`, {
         method: "POST",
@@ -48,6 +50,7 @@ function showMessage(text, type) {
     setTimeout(() => msg.style.display = "none", 3000);
 }
 
+//събира даннит и извиква API-то за трансфер
 async function handleTransfer(e) {
     e.preventDefault();
 
