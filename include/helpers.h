@@ -8,7 +8,7 @@
 #define SAFE_FREE(ptr) do { \
     if (ptr) { \
         free(ptr); \
-        ptr = NULL; \
+        ptr = NULL; \   
     } \
 } while(0)
 

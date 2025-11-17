@@ -595,6 +595,64 @@ int db_get_account_count(void) {
 }
 
 
+//transfer
+int db_transfer_funds(int from_account_id, int to_account_id, double amount)
+{
+    if (!is_valid_account_id(from_account_id) || !is_valid_account_id(to_account_id) || amount <= 0)
+    {
+        printf("Error: Invalid account IDs or amount!\n");
+        return -1;
+    }
+    if (from_account_id == to_account_id)
+    {
+        printf("Error: Cannot transfer to the same account!\n");
+        return -1;
+    }
+    
+
+    Account *from_acc = db_find_account(from_account_id);
+    Account *to_acc = db_find_account(to_account_id);
+
+    if (from_acc == NULL || to_acc == NULL || from_acc->is_active == 0 || to_acc->is_active == 0)
+    {
+        printf("Error: One or both accounts not found or inactive!\n");
+        SAFE_FREE(from_acc);
+        SAFE_FREE(to_acc);
+        return -1;
+    }
+
+    if (from_acc->balance < amount)
+    {
+        printf("Error: Insufficient funds in the source account!\n");
+        SAFE_FREE(from_acc);
+        SAFE_FREE(to_acc);
+        return -1;
+    }
+
+    double new_from_balance = from_acc->balance - amount;
+    double new_to_balance = to_acc->balance + amount;
+
+    SAFE_FREE(from_acc);
+    SAFE_FREE(to_acc);
+
+    if (db_update_account_balance(from_account_id, new_from_balance) != 0 ||
+        db_update_account_balance(to_account_id, new_to_balance) != 0)
+    {
+        printf("Error: Failed to update account balances!\n");
+        return -1;
+    }
+
+    db_add_transaction(from_account_id, WITHDRAW, amount, "Transfer to account");
+    db_add_transaction(to_account_id, DEPOSIT, amount, "Transfer from account");
+
+    return 0;
+
+
+}
+
+//LATER -> update queries to use rollback in case of failure
+
+
 
 
 

@@ -40,4 +40,7 @@ int db_get_transaction_count(int account_id, TransactionType type);
 double db_get_total_deposits(int account_id);
 double db_get_total_withdrawals(int account_id);
 
+//transfer
+int db_transfer_funds(int from_account_id, int to_account_id, double amount);
+
 #endif

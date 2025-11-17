@@ -315,6 +315,7 @@ header p{
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 25px;
 }
 .accounts-helper h3{
     color: #333;
@@ -359,3 +360,61 @@ header p{
 .account-card:hover{
     background: #e2e2e2;
 }
+
+.form-group select{
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+}
+.transfer-form{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+.transfer-form .btn-submit{
+    width: 150px;
+    align-self: center;
+}
+.form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.form-group label{
+    margin-bottom: 5px;
+    max-width: 400px;
+    font-weight: bold;
+    color: white;
+}
+.form-group input, .form-group select{
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+}
+.form-message{
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #d9534f;
+}
+.transfer-from .btn-transfer button{
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease;
+   margin: 40px 43%;
+
+
+}
+.transfer-from .btn-transfer button:hover{
+    background: #5568d3;
+}
+
+
+

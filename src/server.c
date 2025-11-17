@@ -60,6 +60,12 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/app.js", &opts);
         }
+        else if (mg_match(hm->uri,mg_str("/transfer.js"),NULL))
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/transfer.js", &opts);
+        }
+        
          else if (mg_match(hm->uri, mg_str("/deposit_withdraw.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
@@ -191,8 +197,7 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                               "{\"success\": false, \"error\": \"Method not allowed\"}");
             }
         }
-
-
+      
         else if (mg_match(hm->uri, mg_str("/api/stats"), NULL))
         {
             double total = db_get_total_balance();
@@ -327,6 +332,81 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                      "{\"success\": false, \"error\": \"Method not allowed\"}");
     }
 }
+else if (mg_match(hm->uri,mg_str("/api/transfer"),NULL))
+{
+    if(mg_strcmp(hm->method,mg_str("POST"))==0)
+    {
+        int from_account_id=0;
+        int to_account_id=0;
+        double amount=0.0;
+
+        struct mg_str json_body=hm->body;
+
+        const char *from_id_start=strstr(json_body.buf,"\"from_account_id\"");
+        if(from_id_start)
+        {
+            from_id_start=strchr(from_id_start,':');
+            if(from_id_start)
+            {
+                sscanf(from_id_start+1,"%d",&from_account_id);
+            }
+        }
+
+        const char *to_id_start=strstr(json_body.buf,"\"to_account_id\"");
+        if(to_id_start)
+        {
+            to_id_start=strchr(to_id_start,':');
+            if(to_id_start)
+            {
+                sscanf(to_id_start+1,"%d",&to_account_id);
+            }
+        }
+
+        const char* amount_start=strstr(json_body.buf,"\"amount\"");
+        if (amount_start)
+        {
+            amount_start=strchr(amount_start,':');
+            if(amount_start)
+            {
+                sscanf(amount_start+1,"%lf",&amount);
+            }
+        }
+
+        printf("DEBUG: Transfer request - from=%d, to=%d, amount=%.2f\n",from_account_id,to_account_id,amount);
+
+        //validate
+        if(from_account_id>0 && to_account_id>0 && amount>0)
+        {
+            int result=db_transfer_funds(from_account_id,to_account_id,amount);
+            if(result==0)
+            {
+                mg_http_reply(c,200,"Content-Type: application/json\r\n",
+                              "{\"success\": true, \"message\": \"Transfer successful\"}");
+                printf("✓ Transfer successful: from=%d, to=%d, amount=%.2f\n",from_account_id,to_account_id,amount);
+            }
+            else
+            {
+                mg_http_reply(c,500,"Content-Type: application/json\r\n",
+                              "{\"success\": false, \"error\": \"Transfer failed\"}");
+            }
+        }
+        else
+        {
+            mg_http_reply(c,400,"Content-Type: application/json\r\n",
+                          "{\"success\": false, \"error\": \"Invalid input\"}");
+        }
+
+    }
+    else
+    {
+        mg_http_reply(c,405,"Content-Type: application/json\r\n",
+                      "{\"success\": false, \"error\": \"Method not allowed\"}");
+    }
+    {
+
+    }
+}
+
      
 
 

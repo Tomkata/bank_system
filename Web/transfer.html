@@ -19,6 +19,68 @@
             <h1>Bank System Transfer</h1>
             <p>Tranfer Proccess</p>
         </header>
+        <form id="transfer-form" class="transfer-from">
+            <div class="form-group">
+                <label for="from-account">From Account Number:</label>
+                <input type="text" id="from-account-id" name="from-account" required>     
+            </div>
+            <div class="form-group">
+                <label for="to-account">To Account Number:</label>
+                <input type="text" id="to-account-id" name="to-account" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount: (lv)</label>
+                <input type="number" id="transfer-amount" name="amount" required>
+            </div>
+            <div class="btn-transfer">
+            <button type="submit" id="transfer-btn">Make the transfer</button>
+
+            </div>
+        </form>
     </div>
+
+    <div class="accounts-section">
+            <div class="section-header">
+                <h2>All Accounts</h2>
+    <button class="btn-refresh" onclick="reloadAll()">Refresh</button>
+                    </div>
+
+            <div class="table-container">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>Owner Name</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-tbody">
+                        <tr>
+                            <td colspan="4" class="loading">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+         <footer class="footer">
+            <p>Author: Toma Andreev</p>
+                <p>Find me on:</p>
+
+            <div class="socials-container">
+                <a href="https://www.instagram.com/toma_andreev/" target="_blank">
+                    <i class="fa fa-instagram"></i></a>
+
+                <a href="https://github.com/Tomkata" target="_blank">
+                    <i class="fa fa-github"></i></a>
+
+                <a href="https://www.linkedin.com/in/toma-andreev-5a8b9729a/" target="_blank">
+                    <i class="fa fa-linkedin-square"></i></a>
+            </div>
+
+
+        </footer>
+    <script src="transfer.js"></script>
 </body>
 </html>
