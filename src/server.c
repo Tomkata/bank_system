@@ -26,17 +26,17 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
 {
     if (ev == MG_EV_HTTP_MSG)
     {
-        struct mg_http_message *hm = (struct mg_http_message *)ev_data;
+        struct mg_http_message *hm = (struct mg_http_message *)ev_data; //parsed HTTP request
 
         printf("Request: %.*s %.*s\n",
                (int)hm->method.len, hm->method.buf,
                (int)hm->uri.len, hm->uri.buf);
 
-        if (mg_match(hm->uri, mg_str("/"), NULL) ||
+        if (mg_match(hm->uri, mg_str("/"), NULL) ||   //rest API call
     mg_match(hm->uri, mg_str("/index.html"), NULL))
             {
-                struct mg_http_serve_opts opts = {.root_dir = "web"};
-                mg_http_serve_file(c, hm, "web/index.html", &opts);
+                struct mg_http_serve_opts opts = {.root_dir = "web"}; 
+                mg_http_serve_file(c, hm, "web/index.html", &opts); //serve static file
             }
         else if (mg_match(hm->uri, mg_str("/deposit_withdraw.html"), NULL))
             {
@@ -49,6 +49,12 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/style.css", &opts);
         }
+        else if (mg_match(hm->uri,mg_str("/transfer.html"),NULL))
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/transfer.html", &opts);
+        }
+        
         else if (mg_match(hm->uri, mg_str("/app.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
@@ -60,8 +66,7 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             mg_http_serve_file(c, hm, "web/deposit_withdraw.js", &opts);
         }
 
-        else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL) ||
-                mg_match(hm->uri, mg_str("/api/accounts/"), NULL))
+        else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL))
         {
 
             if (mg_strcmp(hm->method, mg_str("GET")) == 0)
@@ -342,8 +347,8 @@ int main(void)
         return 1;
     }
 
-    struct mg_mgr mgr;
-    mg_mgr_init(&mgr);
+    struct mg_mgr mgr; //Mongoose event manager. Holds all connections
+    mg_mgr_init(&mgr); //Initialize event manager
 
     printf("╔════════════════════════════════════════╗\n");
     printf("║   Bank System HTTP Server              ║\n");
@@ -361,12 +366,12 @@ int main(void)
         return 1;
     }
 
-    printf("✓ Server started successfully!\n");
-    printf("✓ Database connected\n\n");
+    printf("Server started successfully!\n");
+    printf("Database connected\n\n");
 
     for (;;)
     {
-        mg_mgr_poll(&mgr, 1000);
+        mg_mgr_poll(&mgr, 1000); //Infinite event loop
     }
 
     close_database();

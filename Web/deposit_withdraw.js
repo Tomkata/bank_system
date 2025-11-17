@@ -119,7 +119,7 @@
         const amount = document.getElementById('deposit-amount').value;
 
         if (!accountId || !amount || parseFloat(amount) <= 0) {
-            showMessage('deposit-message', 'Please enter valid account ID and amount.', 'error');
+            showMessage('   ', 'Please enter valid account ID and amount.', 'error');
             return;
         }
 
@@ -134,6 +134,9 @@
         submitBtn.textContent = submitOriginalText;
 
         if (result.success) {
+            document.getElementById('deposit-account-id').value = '';
+            document.getElementById('deposit-amount').value = '';
+            
             loadAccountsList();  
             showMessage('deposit-message', result.message, 'success');
         } else {
@@ -163,6 +166,8 @@
         submitBtn.textContent = original;
 
         if (result.success) {
+            document.getElementById('withdraw-account-id').value = '';
+            document.getElementById('withdraw-amount').value = '';
             loadAccountsList();
             showMessage('withdraw-message', result.message, 'success');
         } else {
