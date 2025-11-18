@@ -262,7 +262,7 @@ Future improvements planned:
 Naval Academy Student
 
 [![GitHub](https://img.shields.io/badge/GitHub-Tomkata-black?logo=github)](https://github.com/Tomkata)
-[[![LinkedIn](https://img.shields.io/badge/LinkedIn-Toma_Andreev-blue?logo=linkedin)](https://www.linkedin.com/in/toma-andreev-5a8b9729a/)](https://bg.linkedin.com/in/toma-andreev-05a7b6399?trk=people-guest_people_search-card)
+[[![LinkedIn](https://bg.linkedin.com/in/toma-andreev-05a7b6399?trk=people-guest_people_search-card)
 [![Instagram](https://img.shields.io/badge/Instagram-toma__andreev-purple?logo=instagram)](https://www.instagram.com/toma_andreev/)
 
 ---
