@@ -107,7 +107,7 @@ int db_create_account(const char *owner_name, double initial_balance)
 
     if (initial_balance > 0)
     {
-        db_add_transaction(new_id, DEPOSIT, initial_balance, "Initial deposit");
+        db_add_transaction(new_id, TRANSACTION_DEPOSIT, initial_balance, "Initial deposit");
     }
     printf("Account created successfully! ID: %d\n", new_id);
 
@@ -566,13 +566,13 @@ static double db_get_transaction_total(int account_id, TransactionType type)
 
 double db_get_total_deposits(int account_id)
 {   
-    return db_get_transaction_total(account_id, DEPOSIT);
+    return db_get_transaction_total(account_id, TRANSACTION_DEPOSIT);
 }
 
 
 double db_get_total_withdrawals(int account_id)
 {
-    return db_get_transaction_total(account_id, WITHDRAW);
+    return db_get_transaction_total(account_id, TRANSACTION_WITHDRAW);
 }
 
 int db_get_account_count(void) {
@@ -642,15 +642,101 @@ int db_transfer_funds(int from_account_id, int to_account_id, double amount)
         return -1;
     }
 
-    db_add_transaction(from_account_id, WITHDRAW, amount, "Transfer to account");
-    db_add_transaction(to_account_id, DEPOSIT, amount, "Transfer from account");
+    db_add_transaction(from_account_id, TRANSACTION_WITHDRAW, amount, "Transfer to account");
+    db_add_transaction(to_account_id, TRANSACTION_DEPOSIT, amount, "Transfer from account");
 
     return 0;
-
-
 }
 
-//LATER -> update queries to use rollback in case of failure
+
+int db_get_transactions(int account_id, Transaction** transactions, int* count)
+{
+     const char* sql = "SELECT id, account_id, type, amount, timestamp "
+                      "FROM transactions "
+                      "WHERE account_id = ? "
+                      "ORDER BY timestamp DESC;";
+
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return 0;  // FAIL
+    }
+
+    sqlite3_bind_int(stmt, 1, account_id);
+
+    int capacity = 20;
+    Transaction* temp_transactions = malloc(capacity * sizeof(Transaction));
+    if (!temp_transactions) {
+        fprintf(stderr, "Memory allocation failed\n");
+        sqlite3_finalize(stmt);
+        return 0;
+    }
+
+    int local_count = 0;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        if (local_count >= capacity) {
+            capacity *= 2;
+            Transaction* new_ptr = realloc(temp_transactions, capacity * sizeof(Transaction));
+            if (!new_ptr) {
+                free(temp_transactions);
+                sqlite3_finalize(stmt);
+                return 0;
+            }
+            temp_transactions = new_ptr;
+        }
+
+        temp_transactions[local_count].id = sqlite3_column_int(stmt, 0);
+        temp_transactions[local_count].account_id = sqlite3_column_int(stmt, 1);
+        temp_transactions[local_count].type = (TransactionType)sqlite3_column_int(stmt, 2);
+        temp_transactions[local_count].amount = sqlite3_column_double(stmt, 3);
+        temp_transactions[local_count].timestamp = sqlite3_column_int64(stmt, 4);
+
+        local_count++;
+    }
+
+    sqlite3_finalize(stmt);
+
+    *transactions = temp_transactions;
+    *count = local_count;
+
+    printf("✓ Retrieved %d transactions for account %d\n", local_count, account_id);
+
+    return 1; 
+}
+
+int db_update_account_info(int account_id, const char* owner_name, int is_active)
+{
+    const char* sql = "UPDATE accounts SET owner_name = ?, is_active = ? WHERE id = ?;";
+    
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Failed to prepare update statement: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+    
+    sqlite3_bind_text(stmt, 1, owner_name, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 2, is_active);
+    sqlite3_bind_int(stmt, 3, account_id);
+    
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    
+    if (rc != SQLITE_DONE)
+    {
+        fprintf(stderr, "Failed to update account: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+    
+    printf("Account %d updated successfully\n", account_id);
+    return 0;
+}
+
 
 
 

@@ -1,0 +1,24 @@
+[33mce8c796[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Account Details page
+[33m9bafc3e[m htmls update
+[33md4891ea[m transfer.js
+[33ma74aa3d[m database.c,server.c
+[33m27c0691[m Create transfer files
+[33m7c56021[m server.c, deposit_witdraw.js
+[33m7086420[m deposit_withdraw.html, style.css
+[33mc467f7f[m server.c
+[33m9f97c41[m server.c
+[33mc267b48[m app.js
+[33m0a8ab4e[m app.js
+[33m6f082dc[m server.c , index.html, style.css
+[33mf761cc0[m Create Web folder structure
+[33mc1ba9fb[m Server.c - Add routing
+[33m250293c[m Add mongoose library and erver.c
+[33mbf452ff[m Finish database.c for now
+[33mfe5dc86[m Merge branch 'main' of https://github.com/Tomkata/bank_system
+[33m4249107[m Create helpers files and implement them
+[33m7c20930[m Create bank.db
+[33ma6fe852[m Update database.c
+[33me315dba[m Update database.c
+[33m369222a[m Update database.c
+[33m7d2fab4[m Update database.c
+[33m8197447[m Initial commit

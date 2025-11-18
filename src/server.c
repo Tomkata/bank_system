@@ -5,7 +5,8 @@
 #include <string.h>
 
 #define DATABASE_FILE "data/bank.db"
-
+#define CORS_HEADERS "Content-Type: application/json\r\n" \
+                     "Access-Control-Allow-Origin: *\r\n"
 // Helper за JSON escape на string
 static void json_escape_string(char *dest, const char *src, size_t dest_size)
 {
@@ -26,53 +27,57 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
 {
     if (ev == MG_EV_HTTP_MSG)
     {
-        struct mg_http_message *hm = (struct mg_http_message *)ev_data; //parsed HTTP request
+        struct mg_http_message *hm = (struct mg_http_message *)ev_data; // parsed HTTP request
 
         printf("Request: %.*s %.*s\n",
                (int)hm->method.len, hm->method.buf,
                (int)hm->uri.len, hm->uri.buf);
 
-        if (mg_match(hm->uri, mg_str("/"), NULL) ||   //rest API call
-    mg_match(hm->uri, mg_str("/index.html"), NULL))
-            {
-                struct mg_http_serve_opts opts = {.root_dir = "web"}; 
-                mg_http_serve_file(c, hm, "web/index.html", &opts); //serve static file
-            }
+        if (mg_match(hm->uri, mg_str("/"), NULL) || // rest API call
+            mg_match(hm->uri, mg_str("/index.html"), NULL))
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/index.html", &opts); // serve static file
+        }
         else if (mg_match(hm->uri, mg_str("/deposit_withdraw.html"), NULL))
-            {
-                struct mg_http_serve_opts opts = {.root_dir = "web"};
-                mg_http_serve_file(c, hm, "web/deposit_withdraw.html", &opts);
-            }
-        
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/deposit_withdraw.html", &opts);
+        }
+
         else if (mg_match(hm->uri, mg_str("/style.css"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/style.css", &opts);
         }
-        else if (mg_match(hm->uri,mg_str("/account_details.html"),NULL))
+        else if (mg_match(hm->uri, mg_str("/account_details.html"), NULL))
         {
-          struct mg_http_serve_opts opts = {.root_dir = "web"};
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/account_details.html", &opts);
         }
-        
-        else if (mg_match(hm->uri,mg_str("/transfer.html"),NULL))
+
+        else if (mg_match(hm->uri, mg_str("/transfer.html"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/transfer.html", &opts);
         }
-        
+
         else if (mg_match(hm->uri, mg_str("/app.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/app.js", &opts);
         }
-        else if (mg_match(hm->uri,mg_str("/transfer.js"),NULL))
+        else if (mg_match(hm->uri, mg_str("/transfer.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/transfer.js", &opts);
         }
-        
-         else if (mg_match(hm->uri, mg_str("/deposit_withdraw.js"), NULL))
+        else if (mg_match(hm->uri, mg_str("/account_details.js"), NULL))
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/account_details.js", &opts);
+        }
+        else if (mg_match(hm->uri, mg_str("/deposit_withdraw.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/deposit_withdraw.js", &opts);
@@ -111,13 +116,13 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
 
                     offset += snprintf(json + offset, sizeof(json) - offset, "]}");
 
-                    mg_http_reply(c, 200, "Content-Type: application/json\r\n", "%s", json);
+                    mg_http_reply(c, 200, CORS_HEADERS, "%s", json);
 
                     free(accounts);
                 }
                 else
                 {
-                    mg_http_reply(c, 500, "Content-Type: application/json\r\n",
+                    mg_http_reply(c, 500, CORS_HEADERS,
                                   "{\"success\": false, \"error\": \"Database error\"}");
                 }
             }
@@ -178,20 +183,20 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                         snprintf(json, sizeof(json),
                                  "{\"success\": true, \"message\": \"Account created\", \"id\": %d}",
                                  new_id);
-                        mg_http_reply(c, 201, "Content-Type: application/json\r\n", "%s", json);
+                        mg_http_reply(c, 201, CORS_HEADERS, "%s", json);
 
                         printf("✓ Account created: ID=%d, name=%s, balance=%.2f\n",
                                new_id, owner_name, initial_balance);
                     }
                     else
                     {
-                        mg_http_reply(c, 500, "Content-Type: application/json\r\n",
+                        mg_http_reply(c, 500, CORS_HEADERS,
                                       "{\"success\": false, \"error\": \"Failed to create account\"}");
                     }
                 }
                 else
                 {
-                    mg_http_reply(c, 400, "Content-Type: application/json\r\n",
+                    mg_http_reply(c, 400, CORS_HEADERS,
                                   "{\"success\": false, \"error\": \"Invalid input\"}");
                 }
             }
@@ -199,11 +204,11 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             // Method not allowed
             else
             {
-                mg_http_reply(c, 405, "Content-Type: application/json\r\n",
+                mg_http_reply(c, 405, CORS_HEADERS,
                               "{\"success\": false, \"error\": \"Method not allowed\"}");
             }
         }
-      
+
         else if (mg_match(hm->uri, mg_str("/api/stats"), NULL))
         {
             double total = db_get_total_balance();
@@ -219,206 +224,283 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                      "}}",
                      total, average, count);
 
-            mg_http_reply(c, 200, "Content-Type: application/json\r\n", "%s", json);
+            mg_http_reply(c, 200, CORS_HEADERS, "%s", json);
         }
-
- 
 
         else if (mg_match(hm->uri, mg_str("/api/test"), NULL))
         {
-            mg_http_reply(c, 200, "Content-Type: application/json\r\n",
+            mg_http_reply(c, 200, CORS_HEADERS,
                           "{\"message\": \"Hello from API!\", \"status\": \"ok\"}");
         }
 
-        else if (mg_match(hm->uri,mg_str("/api/deposit"),NULL))
+        else if (mg_match(hm->uri, mg_str("/api/deposit"), NULL))
         {
-            if(mg_strcmp(hm->method,mg_str("POST"))==0)
+            if (mg_strcmp(hm->method, mg_str("POST")) == 0)
             {
-                    int account_id=0;
-                    double amount=0.0;
+                int account_id = 0;
+                double amount = 0.0;
 
-                    struct mg_str json_body=hm->body;
+                struct mg_str json_body = hm->body;
 
-                    const char *id_start=strstr(json_body.buf,"\"account_id\"");
-                    if(id_start)
+                const char *id_start = strstr(json_body.buf, "\"account_id\"");
+                if (id_start)
+                {
+                    id_start = strchr(id_start, ':');
+                    if (id_start)
                     {
-                        id_start=strchr(id_start,':');
-                        if(id_start)
-                        {
-                            sscanf(id_start+1,"%d",&account_id);
-                        }
+                        sscanf(id_start + 1, "%d", &account_id);
                     }
+                }
 
-                    const char* amount_start=strstr(json_body.buf,"\"amount\"");
+                const char *amount_start = strstr(json_body.buf, "\"amount\"");
+                if (amount_start)
+                {
+                    amount_start = strchr(amount_start, ':');
                     if (amount_start)
                     {
-                        amount_start=strchr(amount_start,':');
-                        if(amount_start)
-                        {
-                            sscanf(amount_start+1,"%lf",&amount);
-                        }
+                        sscanf(amount_start + 1, "%lf", &amount);
                     }
+                }
 
-                    printf("DEBUG: Received deposit - account_id=%d, amount=%.2f\n",account_id,amount);  
+                printf("DEBUG: Received deposit - account_id=%d, amount=%.2f\n", account_id, amount);
 
-                    //validate
-                    if(account_id>0 && amount>0)
+                // validate
+                if (account_id > 0 && amount > 0)
+                {
+                    int result = deposit(account_id, amount);
+                    if (result == 0)
                     {
-                        int result=deposit(account_id,amount);
-                        if(result==0)
-                        {   
-                            mg_http_reply(c,200,"Content-Type: application/json\r\n",
-                                          "{\"success\": true, \"message\": \"Deposit successful\"}");
-                            printf("✓ Deposit successful: account_id=%d, amount=%.2f\n",account_id,amount);
-                        }
-                        else
-                        {
-                            mg_http_reply(c,500,"Content-Type: application/json\r\n",
-                                          "{\"success\": false, \"error\": \"Deposit failed\"}");
-                        }
+                        mg_http_reply(c, 200, CORS_HEADERS,
+                                      "{\"success\": true, \"message\": \"Deposit successful\"}");
+                        printf("✓ Deposit successful: account_id=%d, amount=%.2f\n", account_id, amount);
                     }
                     else
                     {
-                        mg_http_reply(c,400,"Content-Type: application/json\r\n",
-                                      "{\"success\": false, \"error\": \"Invalid input\"}");
+                        mg_http_reply(c, 500, CORS_HEADERS,
+                                      "{\"success\": false, \"error\": \"Deposit failed\"}");
                     }
- 
+                }
+                else
+                {
+                    mg_http_reply(c, 400, CORS_HEADERS,
+                                  "{\"success\": false, \"error\": \"Invalid input\"}");
+                }
             }
             else
             {
-                mg_http_reply(c,405,"Content-Type: application/json\r\n",
+                mg_http_reply(c, 405, CORS_HEADERS,
                               "{\"success\": false, \"error\": \"Method not allowed\"}");
             }
         }
-        else if (mg_match(hm->uri, mg_str("/api/withdraw"), NULL)) {
-    if (mg_strcmp(hm->method, mg_str("POST")) == 0) {
-        int account_id = 0;
-        double amount = 0.0;
-        
-        struct mg_str json_body = hm->body;
-        
-        const char *id_start = strstr(json_body.buf, "\"account_id\"");
-        if (id_start) {
-            id_start = strchr(id_start, ':');
-            if (id_start) {
-                sscanf(id_start + 1, "%d", &account_id);
-            }
-        }
-        
-        const char *amount_start = strstr(json_body.buf, "\"amount\"");
-        if (amount_start) {
-            amount_start = strchr(amount_start, ':');
-            if (amount_start) {
-                sscanf(amount_start + 1, "%lf", &amount);
-            }
-        }
-        
-        printf("DEBUG: Withdraw request - ID=%d, amount=%.2f\n", account_id, amount);
-        
-        // Validate
-        if (account_id > 0 && amount > 0) {
-            if (withdraw(account_id, amount) == 0) {
-                char json[256];
-                snprintf(json, sizeof(json),
-                        "{\"success\": true, \"message\": \"Withdrawal successful\", \"account_id\": %d, \"amount\": %.2f}",
-                        account_id, amount);
-                mg_http_reply(c, 200, "Content-Type: application/json\r\n", "%s", json);
-                
-                printf("✓ Withdrawal successful: ID=%d, amount=%.2f\n", account_id, amount);
-            } else {
-                mg_http_reply(c, 500, "Content-Type: application/json\r\n",
-                             "{\"success\": false, \"error\": \"Insufficient funds or invalid account\"}");
-            }
-        } else {
-            mg_http_reply(c, 400, "Content-Type: application/json\r\n",
-                         "{\"success\": false, \"error\": \"Invalid account ID or amount\"}");
-        }
-    } else {
-        mg_http_reply(c, 405, "Content-Type: application/json\r\n",
-                     "{\"success\": false, \"error\": \"Method not allowed\"}");
-    }
-}
-else if (mg_match(hm->uri,mg_str("/api/transfer"),NULL))
-{
-    if(mg_strcmp(hm->method,mg_str("POST"))==0)
-    {
-        int from_account_id=0;
-        int to_account_id=0;
-        double amount=0.0;
-
-        struct mg_str json_body=hm->body;
-
-        const char *from_id_start=strstr(json_body.buf,"\"from_account_id\"");
-        if(from_id_start)
+        else if (mg_match(hm->uri, mg_str("/api/withdraw"), NULL))
         {
-            from_id_start=strchr(from_id_start,':');
-            if(from_id_start)
+            if (mg_strcmp(hm->method, mg_str("POST")) == 0)
             {
-                sscanf(from_id_start+1,"%d",&from_account_id);
-            }
-        }
+                int account_id = 0;
+                double amount = 0.0;
 
-        const char *to_id_start=strstr(json_body.buf,"\"to_account_id\"");
-        if(to_id_start)
-        {
-            to_id_start=strchr(to_id_start,':');
-            if(to_id_start)
-            {
-                sscanf(to_id_start+1,"%d",&to_account_id);
-            }
-        }
+                struct mg_str json_body = hm->body;
 
-        const char* amount_start=strstr(json_body.buf,"\"amount\"");
-        if (amount_start)
-        {
-            amount_start=strchr(amount_start,':');
-            if(amount_start)
-            {
-                sscanf(amount_start+1,"%lf",&amount);
-            }
-        }
+                const char *id_start = strstr(json_body.buf, "\"account_id\"");
+                if (id_start)
+                {
+                    id_start = strchr(id_start, ':');
+                    if (id_start)
+                    {
+                        sscanf(id_start + 1, "%d", &account_id);
+                    }
+                }
 
-        printf("DEBUG: Transfer request - from=%d, to=%d, amount=%.2f\n",from_account_id,to_account_id,amount);
+                const char *amount_start = strstr(json_body.buf, "\"amount\"");
+                if (amount_start)
+                {
+                    amount_start = strchr(amount_start, ':');
+                    if (amount_start)
+                    {
+                        sscanf(amount_start + 1, "%lf", &amount);
+                    }
+                }
 
-        //validate
-        if(from_account_id>0 && to_account_id>0 && amount>0)
-        {
-            int result=db_transfer_funds(from_account_id,to_account_id,amount);
-            if(result==0)
-            {
-                mg_http_reply(c,200,"Content-Type: application/json\r\n",
-                              "{\"success\": true, \"message\": \"Transfer successful\"}");
-                printf("✓ Transfer successful: from=%d, to=%d, amount=%.2f\n",from_account_id,to_account_id,amount);
+                printf("DEBUG: Withdraw request - ID=%d, amount=%.2f\n", account_id, amount);
+
+                // Validate
+                if (account_id > 0 && amount > 0)
+                {
+                    if (withdraw(account_id, amount) == 0)
+                    {
+                        char json[256];
+                        snprintf(json, sizeof(json),
+                                 "{\"success\": true, \"message\": \"Withdrawal successful\", \"account_id\": %d, \"amount\": %.2f}",
+                                 account_id, amount);
+                        mg_http_reply(c, 200, CORS_HEADERS, "%s", json);
+
+                        printf("✓ Withdrawal successful: ID=%d, amount=%.2f\n", account_id, amount);
+                    }
+                    else
+                    {
+                        mg_http_reply(c, 500, CORS_HEADERS,
+                                      "{\"success\": false, \"error\": \"Insufficient funds or invalid account\"}");
+                    }
+                }
+                else
+                {
+                    mg_http_reply(c, 400, CORS_HEADERS,
+                                  "{\"success\": false, \"error\": \"Invalid account ID or amount\"}");
+                }
             }
             else
             {
-                mg_http_reply(c,500,"Content-Type: application/json\r\n",
-                              "{\"success\": false, \"error\": \"Transfer failed\"}");
+                mg_http_reply(c, 405, CORS_HEADERS,
+                              "{\"success\": false, \"error\": \"Method not allowed\"}");
             }
         }
-        else
+        else if (mg_match(hm->uri, mg_str("/api/transfer"), NULL))
         {
-            mg_http_reply(c,400,"Content-Type: application/json\r\n",
-                          "{\"success\": false, \"error\": \"Invalid input\"}");
+            if (mg_strcmp(hm->method, mg_str("POST")) == 0)
+            {
+                int from_account_id = 0;
+                int to_account_id = 0;
+                double amount = 0.0;
+
+                struct mg_str json_body = hm->body;
+
+                const char *from_id_start = strstr(json_body.buf, "\"from_account_id\"");
+                if (from_id_start)
+                {
+                    from_id_start = strchr(from_id_start, ':');
+                    if (from_id_start)
+                    {
+                        sscanf(from_id_start + 1, "%d", &from_account_id);
+                    }
+                }
+
+                const char *to_id_start = strstr(json_body.buf, "\"to_account_id\"");
+                if (to_id_start)
+                {
+                    to_id_start = strchr(to_id_start, ':');
+                    if (to_id_start)
+                    {
+                        sscanf(to_id_start + 1, "%d", &to_account_id);
+                    }
+                }
+
+                const char *amount_start = strstr(json_body.buf, "\"amount\"");
+                if (amount_start)
+                {
+                    amount_start = strchr(amount_start, ':');
+                    if (amount_start)
+                    {
+                        sscanf(amount_start + 1, "%lf", &amount);
+                    }
+                }
+
+                printf("DEBUG: Transfer request - from=%d, to=%d, amount=%.2f\n", from_account_id, to_account_id, amount);
+
+                // validate
+                if (from_account_id > 0 && to_account_id > 0 && amount > 0)
+                {
+                    int result = db_transfer_funds(from_account_id, to_account_id, amount);
+                    if (result == 0)
+                    {
+                        mg_http_reply(c, 200, CORS_HEADERS,
+                                      "{\"success\": true, \"message\": \"Transfer successful\"}");
+                        printf("✓ Transfer successful: from=%d, to=%d, amount=%.2f\n", from_account_id, to_account_id, amount);
+                    }
+                    else
+                    {
+                        mg_http_reply(c, 500, CORS_HEADERS,
+                                      "{\"success\": false, \"error\": \"Transfer failed\"}");
+                    }
+                }
+                else
+                {
+                    mg_http_reply(c, 400, CORS_HEADERS,
+                                  "{\"success\": false, \"error\": \"Invalid input\"}");
+                }
+            }
+            else
+            {
+                mg_http_reply(c, 405, CORS_HEADERS,
+                              "{\"success\": false, \"error\": \"Method not allowed\"}");
+            }
+        }
+        else if (mg_match(hm->uri, mg_str("/api/transactions"), NULL))
+        {
+            // GET - Get all transactions for an account
+            if (mg_strcmp(hm->method, mg_str("GET")) == 0)
+            {
+                // Extract account_id from /api/transactions?account_id=1
+                struct mg_str account_id_param = mg_http_var(hm->query, mg_str("account_id"));
+
+                if (account_id_param.len == 0)
+                {
+                    mg_http_reply(c, 400, CORS_HEADERS,
+                                  "{\"success\": false, \"error\": \"Missing account_id parameter\"}");
+                    return;
+                }
+
+                // Convert to integer
+                char account_id_str[32] = {0};
+                snprintf(account_id_str, sizeof(account_id_str), "%.*s", (int)account_id_param.len, account_id_param.buf);
+                int account_id = atoi(account_id_str);
+
+                if (account_id <= 0)
+                {
+                    mg_http_reply(c, 400, CORS_HEADERS,
+                                  "{\"success\": false, \"error\": \"Invalid account_id\"}");
+                    return;
+                }
+
+
+                Transaction *transactions = NULL;
+                int count = 0;
+                db_get_transactions(account_id, &transactions, &count);
+
+                if (count >= 0)
+                {
+                    char json[16384];
+                    int offset = 0;
+
+                    offset += snprintf(json + offset, sizeof(json) - offset,
+                                       "{\"success\": true, \"count\": %d, \"transactions\": [", count);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        offset += snprintf(json + offset, sizeof(json) - offset,
+                                           "%s{\"id\": %d, \"account_id\": %d, \"type\": %d, \"amount\": %.2f, \"timestamp\": %ld}",
+                                           (i > 0 ? ", " : ""),
+                                           transactions[i].id,
+                                           transactions[i].account_id,
+                                           transactions[i].type,
+                                           transactions[i].amount,
+                                           transactions[i].timestamp);
+                    }
+
+                    offset += snprintf(json + offset, sizeof(json) - offset, "]}");
+
+                    mg_http_reply(c, 200, CORS_HEADERS, "%s", json);
+
+                    printf("✓ Sent %d transactions for account %d\n", count, account_id);
+
+                    if (transactions)
+                        free(transactions);
+                }
+                else
+                {
+                    mg_http_reply(c, 500, CORS_HEADERS,
+                                  "{\"success\": false, \"error\": \"Database error\"}");
+                }
+            }
+            else
+            {
+                mg_http_reply(c, 405, CORS_HEADERS,
+                              "{\"success\": false, \"error\": \"Method not allowed\"}");
+            }
         }
 
-    }
-    else
-    {
-        mg_http_reply(c,405,"Content-Type: application/json\r\n",
-                      "{\"success\": false, \"error\": \"Method not allowed\"}");
-    }
-    {
-
-    }
-}
-
-     
-
-
         else
         {
-            mg_http_reply(c, 404, "Content-Type: application/json\r\n",
+            mg_http_reply(c, 404, CORS_HEADERS,
                           "{\"success\": false, \"error\": \"Not found\"}");
         }
     }
@@ -433,8 +515,8 @@ int main(void)
         return 1;
     }
 
-    struct mg_mgr mgr; //Mongoose event manager. Holds all connections
-    mg_mgr_init(&mgr); //Initialize event manager
+    struct mg_mgr mgr; // Mongoose event manager. Holds all connections
+    mg_mgr_init(&mgr); // Initialize event manager
 
     printf("╔════════════════════════════════════════╗\n");
     printf("║   Bank System HTTP Server              ║\n");
@@ -457,7 +539,7 @@ int main(void)
 
     for (;;)
     {
-        mg_mgr_poll(&mgr, 1000); //Infinite event loop
+        mg_mgr_poll(&mgr, 1000); // Infinite event loop
     }
 
     close_database();

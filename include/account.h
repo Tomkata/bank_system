@@ -7,12 +7,12 @@
 #define MAX_ACCOUNTS 100
 #define MAX_TRANSACTIONS 1000
 
-typedef enum 
-{
-    DEPOSIT = 0, 
-    WITHDRAW = 1,
-    TRANSFER = 2
-} TransactionType;
+typedef enum {
+    TRANSACTION_UNKNOWN = 0,
+    TRANSACTION_DEPOSIT = 1,
+    TRANSACTION_WITHDRAW = 2,
+    TRANSACTION_TRANSFER = 3
+} TransactionType;  
 
 typedef struct 
 {

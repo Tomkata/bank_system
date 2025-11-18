@@ -49,7 +49,7 @@ int deposit(int account_id, double amount)
     }
     
     
-    db_add_transaction(account_id, DEPOSIT, amount, "Deposit");
+    db_add_transaction(account_id, TRANSACTION_DEPOSIT, amount, "Deposit");
     
     printf("Успешен депозит от %.2f лв. Нов баланс: %.2f лв.\n", 
            amount, new_balance);
@@ -87,7 +87,7 @@ int withdraw(int account_id, double amount)
     }
     
    
-    db_add_transaction(account_id, WITHDRAW, amount, "Withdraw");
+    db_add_transaction(account_id, TRANSACTION_WITHDRAW, amount, "Withdraw");
     
     printf("Успешно изтеглени %.2f лв. Нов баланс: %.2f лв.\n", 
            amount, new_balance);
@@ -139,10 +139,10 @@ int transfer(int from_id, int to_id, double amount)
     
     char desc[100];
     snprintf(desc, 100, "Transfer to account #%d", to_id);
-    db_add_transaction(from_id, TRANSFER, amount, desc);
+    db_add_transaction(from_id, TRANSACTION_TRANSFER, amount, desc);
     
     snprintf(desc, 100, "Transfer from account #%d", from_id);
-    db_add_transaction(to_id, TRANSFER, amount, desc);
+    db_add_transaction(to_id, TRANSACTION_TRANSFER, amount, desc);
     
     printf("Успешен трансфер от %.2f лв. от акаунт %d към акаунт %d.\n", 
            amount, from_id, to_id);
