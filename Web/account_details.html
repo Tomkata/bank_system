@@ -68,23 +68,7 @@
               
             </div>
 
-            <!-- Edit Form (Hidden by default) -->
-            <div id="edit-account-section" class="edit-account-section" style="display: none;">
-                <h2>Edit Account</h2>
-                <form id="edit-account-form" class="account-form">
-                    <div class="form-group">
-                        <label for="edit-owner-name">Owner Name:</label>
-                        <input type="text" id="edit-owner-name" name="owner_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-account-status">Status:</label>
-                        <select id="edit-account-status" name="status" required>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
+           
 
             <!-- Transaction History -->
             <div class="transaction-history-section">
@@ -105,8 +89,18 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
+
+                    <div class="pagination-controls">
+    <button class="btn btn-secondary" id="prev-page-btn" disabled>
+        ◀ Previous
+    </button>
+    
+    <span class="page-info" id="page-info">Page 1 of 1</span>
+    
+    <button class="btn btn-secondary" id="next-page-btn" disabled>
+        Next ▶
+    </button>
+</div>
 
             <div class="account-stats-section">
                 <h2>Account Statistics</h2>
@@ -138,6 +132,7 @@
 
         <div id="account-message" class="form-message" style="display: none;"></div>
 
+
         <footer class="footer">
             <p>Author: Toma Andreev</p>
             <p>Find me on:</p>
@@ -154,7 +149,7 @@
             </div>
         </footer>
     </div>
-
     <script src="account_details.js"></script>
+    
 </body>
 </html>

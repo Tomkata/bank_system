@@ -1,6 +1,10 @@
 const API_BASE = 'http://localhost:8000/api';
 
 let currentAccountId = null;
+let allTransactions
+= [];
+let currPage = 1;
+const perPage = 10;
 
 
 // Show message
@@ -62,7 +66,16 @@ async function getTransactions(accountId) {
         });
 
         const data = await response.json();
+        if(data.success){
+            allTransactions = data.transactions || [];
+            currPage = 1;
+
+            displayCurrentPage();
+            updatePaginationControls();
+        }
         console.log('Transactions data:', data);
+
+
 
         return data;
     } catch (error) {
@@ -71,37 +84,50 @@ async function getTransactions(accountId) {
     }
 }
 
-// Update account
-async function updateAccount(accountId, ownerName, isActive) {
-    try {
-        console.log('Updating account:', { accountId, ownerName, isActive });
 
-        const response = await fetch(`${API_BASE}/account/${accountId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                owner_name: ownerName,
-                is_active: parseInt(isActive)
-            })
-        });
+function displayCurrentPage() {
 
-        const data = await response.json();
-        console.log('Update response:', data);
+    const totalPages = Math.ceil(allTransactions.length / perPage);
+    const startIndex = (currPage - 1) * perPage;
+    const endIndex = startIndex + perPage;
+    const pageTransactions = allTransactions.slice(startIndex, endIndex);
 
-        return data;
-    } catch (error) {
-        console.error('Error updating account:', error);
-        return { success: false, error: 'Network error' };
+    displayTransactions(pageTransactions);
+
+}
+
+function updatePaginationControls() {
+    const totalPages = Math.ceil(allTransactions.length / perPage);
+document.getElementById('page-info').textContent = `Page ${currPage} of ${totalPages}`;
+
+    document.getElementById('prev-page-btn').disabled = currPage === 1;
+    document.getElementById('next-page-btn').disabled = currPage === totalPages;
+
+}
+
+function   handlePreviousPage() {
+    if (currPage > 1) {
+        currPage--;
+        displayCurrentPage();
+        updatePaginationControls();
+
+    }
+}
+
+function handleNextPage() {
+    const totalPages = Math.ceil(allTransactions.length / perPage);
+    if (currPage < totalPages) {
+        currPage++;
+        displayCurrentPage();
+                updatePaginationControls();
+
     }
 }
 
 
-
-
 // Display account details
 function displayAccountDetails(account) {
+
     document.getElementById('display-account-id').textContent = account.id;
     document.getElementById('display-owner-name').textContent = account.owner_name;
     document.getElementById('display-balance').textContent = `${account.balance.toFixed(2)} lv`;
@@ -184,7 +210,7 @@ function displayStatistics(transactions) {
         transactions.forEach(tx => {
             if (tx.type === 0 || tx.type === 3) {
                 totalDeposits += tx.amount;
-            } else if (tx.type === 1  || tx.type === 4) {
+            } else if (tx.type === 1 || tx.type === 4) {
                 totalWithdrawals += tx.amount;
             }
         });
@@ -219,8 +245,8 @@ async function handleAccountLookup(e) {
         // Fetch and display transactions
         const txResult = await getTransactions(accountId);
         if (txResult.success) {
-            displayTransactions(txResult.transactions);
-            displayStatistics(txResult.transactions);
+            // displayCurrentPage() and updatePaginationControls() are called in getTransactions()
+            displayStatistics(allTransactions);
         }
     } else {
         showMessage(`✗ Account not found: ${accountResult.error || 'Unknown error'}`, 'error');
@@ -228,64 +254,22 @@ async function handleAccountLookup(e) {
     }
 }
 
-// Show edit form
-function showEditForm() {
-    const editSection = document.getElementById('edit-account-section');
-    editSection.style.display = 'block';
-
-    // Pre-fill form with current values
-    const ownerName = document.getElementById('display-owner-name').textContent;
-    const status = document.getElementById('display-status').textContent.includes('Active') ? '1' : '0';
-
-    document.getElementById('edit-owner-name').value = ownerName;
-    document.getElementById('edit-account-status').value = status;
-}
-
-// Hide edit form
-function hideEditForm() {
-    document.getElementById('edit-account-section').style.display = 'none';
-}
-
-// Handle edit account
-async function handleEditAccount(e) {
-    e.preventDefault();
-
-    if (!currentAccountId) {
-        showMessage('✗ No account selected', 'error');
-        return;
-    }
-
-    const ownerName = document.getElementById('edit-owner-name').value;
-    const isActive = document.getElementById('edit-account-status').value;
-
-    console.log('Updating account:', { currentAccountId, ownerName, isActive });
-
-    const result = await updateAccount(currentAccountId, ownerName, isActive);
-
-    if (result.success) {
-        showMessage('✓ Account updated successfully', 'success');
-        hideEditForm();
-
-        // Reload account details
-        const accountResult = await getAccount(currentAccountId);
-        if (accountResult.success && accountResult.account) {
-            displayAccountDetails(accountResult.account);
-        }
-    } else {
-        showMessage(`✗ Update failed: ${result.error || 'Unknown error'}`, 'error');
-    }
-}
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Account details page loaded');
+    
 
+       console.log('prev-page-btn:', document.getElementById('prev-page-btn'));
+    console.log('next-page-btn:', document.getElementById('next-page-btn'));
+    console.log('page-info:', document.getElementById('page-info'));
+  
     // Attach event listeners
     document.getElementById('account-lookup-form').addEventListener('submit', handleAccountLookup);
-    document.getElementById('edit-account-btn').addEventListener('click', showEditForm);
-    document.getElementById('cancel-edit-btn').addEventListener('click', hideEditForm);
-    document.getElementById('edit-account-form').addEventListener('submit', handleEditAccount);
-    document.getElementById('delete-account-btn').addEventListener('click', handleDeleteAccount);
+
+
+    document.getElementById('next-page-btn').addEventListener('click', handleNextPage);
+  document.getElementById('prev-page-btn').addEventListener('click', handlePreviousPage);
+
 
     console.log('Event listeners attached');
 });

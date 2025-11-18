@@ -459,6 +459,7 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                 if (count >= 0)
                 {
                     char json[16384];
+                    //offset е брояч, който държи КЪДЕ си стигнал при писане в буфера json
                     int offset = 0;
 
                     offset += snprintf(json + offset, sizeof(json) - offset,

@@ -641,4 +641,53 @@ header p{
         flex-direction: column;
     }
 }
+ .account-lookup-section .btn-view-details  {
 
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease;
+   margin: 40px 43%;
+ }
+.btn-view-details:hover {
+         background: #5568d3;
+
+}
+
+.pagination-controls{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    margin-top: 10px;
+
+}
+.page-info{
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+.btn-secondary:hover:not(:disabled){
+    background-color: #5a6268;
+}
+.btn-secondary:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
