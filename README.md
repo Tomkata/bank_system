@@ -19,7 +19,6 @@ A full-featured banking management system written in C with SQLite database and 
 - ✅ Withdraw money
 - ✅ Transfer between accounts
 - ✅ Check balance
-- ✅ Delete accounts
 - ✅ Transaction history
 - ✅ Data persistence with SQLite
 
