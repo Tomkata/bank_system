@@ -61,7 +61,12 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/transfer.html", &opts);
         }
-
+        else if (mg_match(hm->uri,mg_str("/create_account.html"),NULL))
+        {
+            struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/create_account.html", &opts);
+        }
+        
         else if (mg_match(hm->uri, mg_str("/app.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
@@ -77,11 +82,84 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/account_details.js", &opts);
         }
+        else if(mg_match(hm->uri,mg_str("/create_account.js"),NULL))
+        {
+             struct mg_http_serve_opts opts = {.root_dir = "web"};
+            mg_http_serve_file(c, hm, "web/create_account.js", &opts);    
+        }
         else if (mg_match(hm->uri, mg_str("/deposit_withdraw.js"), NULL))
         {
             struct mg_http_serve_opts opts = {.root_dir = "web"};
             mg_http_serve_file(c, hm, "web/deposit_withdraw.js", &opts);
         }
+       
+       else if (mg_match(hm->uri, mg_str("/api/create_account"), NULL) && mg_strcmp(hm->method, mg_str("POST")) == 0) {
+
+    struct mg_str json = hm->body;
+    double initial_amount = 0;
+    char owner_name[100] = {0};
+    
+    // Парсваме owner_name
+    char *name_ptr = mg_json_get_str(json, "$.owner_name");
+    
+    if (name_ptr != NULL) {
+        // Копираме стринга (mg_json_get_str връща стринг БЕЗ кавички вече)
+        int len = 0;
+        while (name_ptr[len] != '\0' && len < sizeof(owner_name) - 1) {
+            owner_name[len] = name_ptr[len];
+            len++;
+        }
+        owner_name[len] = '\0';
+        
+        if (len == 0) {
+            mg_http_reply(c, 400, "Content-Type: application/json\r\n", 
+                         "{\"success\":false,\"message\":\"Empty owner_name\"}");
+            return;
+        }
+        
+        MG_INFO(("Owner name: '%s' (len=%d)", owner_name, len));
+    } else {
+        mg_http_reply(c, 400, "Content-Type: application/json\r\n", 
+                     "{\"success\":false,\"message\":\"Missing owner_name\"}");
+        return;
+    }
+        
+    // Парсваме amount
+    if (!mg_json_get_num(json, "$.amount", &initial_amount)) {
+        mg_http_reply(c, 400, "Content-Type: application/json\r\n", 
+                     "{\"success\":false,\"message\":\"Missing or invalid amount\"}");
+        return;
+    }
+
+    MG_INFO(("Initial amount: %.2f", initial_amount));
+    
+    if (initial_amount < 0) {
+        mg_http_reply(c, 400, "Content-Type: application/json\r\n", 
+                     "{\"success\":false,\"message\":\"Amount cannot be negative\"}");
+        return;
+    }
+
+    int new_account_id = db_create_account(owner_name, initial_amount);
+
+MG_INFO(("DEBUG: db_create_account returned ID: %d", new_account_id));
+
+if(new_account_id > 0) {
+    char response[256];
+    snprintf(response, sizeof(response),
+        "{\"success\":true,\"message\":\"Account created successfully\",\"account_id\":%d}",
+        new_account_id);
+    
+    mg_http_reply(c, 200, "Content-Type: application/json\r\n", "%s", response);
+    MG_INFO(("Account created: ID=%d, Owner=%s, Amount=%.2f", 
+            new_account_id, owner_name, initial_amount));
+} else {
+    mg_http_reply(c, 500, "Content-Type: application/json\r\n", 
+                 "{\"success\":false,\"message\":\"Failed to create account in database\"}");
+    MG_ERROR(("Failed to create account for owner: %s, returned: %d", owner_name, new_account_id));
+}
+}
+
+
 
         else if (mg_match(hm->uri, mg_str("/api/accounts"), NULL))
         {
@@ -291,7 +369,7 @@ static void event_handler(struct mg_connection *c, int ev, void *ev_data)
                 mg_http_reply(c, 405, CORS_HEADERS,
                               "{\"success\": false, \"error\": \"Method not allowed\"}");
             }
-        }
+        } 
         else if (mg_match(hm->uri, mg_str("/api/withdraw"), NULL))
         {
             if (mg_strcmp(hm->method, mg_str("POST")) == 0)

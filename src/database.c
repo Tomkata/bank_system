@@ -16,6 +16,7 @@ int init_database(const char *db_path)
         fprintf(stderr, "Неуспешно отваряне на база данни: %s\n", sqlite3_errmsg(db));
         return rc;
     }
+    sqlite3_busy_timeout(db, 5000); // 5 секунди timeout
 
     printf("Успешно отворена база данни.\n");
 
@@ -71,6 +72,8 @@ int close_database()
 
 int db_create_account(const char *owner_name, double initial_balance)
 {
+    printf("DEBUG: Starting db_create_account for '%s' with balance %.2f\n", owner_name, initial_balance);
+    
     if (initial_balance < 0)
     {
         fprintf(stderr, "Началният баланс не може да бъде отрицателен.\n");
@@ -81,38 +84,51 @@ int db_create_account(const char *owner_name, double initial_balance)
                       "VALUES (?, ?, ?, 1);";
 
     sqlite3_stmt *stmt;
+    
+    printf("DEBUG: About to prepare statement\n");
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "Неуспешна подготовка на заявка: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Неуспешна подготовка на заявка: %s (error code: %d)\n", sqlite3_errmsg(db), rc);
         return -1;
     }
+    
+    printf("DEBUG: Statement prepared, binding parameters\n");
 
     sqlite3_bind_text(stmt, 1, owner_name, -1, SQLITE_TRANSIENT);
     sqlite3_bind_double(stmt, 2, initial_balance);
     sqlite3_bind_int(stmt, 3, (int)time(NULL));
 
+    printf("DEBUG: Parameters bound, executing statement\n");
     rc = sqlite3_step(stmt);
+    
+    printf("DEBUG: sqlite3_step returned: %d (SQLITE_DONE=%d)\n", rc, SQLITE_DONE);
 
     if (rc != SQLITE_DONE)
     {
-        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Execution failed: %s (error code: %d)\n", sqlite3_errmsg(db), rc);
         sqlite3_finalize(stmt);
         return -1;
     }
+    
+    
     sqlite3_finalize(stmt);
+    printf("DEBUG: Statement finalized\n");
 
     int new_id = (int)sqlite3_last_insert_rowid(db);
+    printf("DEBUG: Account ID after insert: %d\n", new_id);
 
     if (initial_balance > 0)
-    {
-        db_add_transaction(new_id, TRANSACTION_DEPOSIT, initial_balance, "Initial deposit");
-    }
-    printf("Account created successfully! ID: %d\n", new_id);
+{
+    int transaction_result = db_add_transaction(new_id, TRANSACTION_DEPOSIT, initial_balance, "Initial deposit");
+    printf("DEBUG: db_add_transaction returned: %d\n", transaction_result);
+}
 
+    printf("Account created successfully! ID: %d\n", new_id);
     return new_id;
 }
+
 
 Account* db_find_account(int account_id)
 {
@@ -259,8 +275,11 @@ double db_get_balance(int account_id)
     {
         return -1.0;
     }
-    return acc->balance;
+    double balance = acc->balance;
+    free(acc);  // ВАЖНО: Освобождаваме паметта!
+    return balance;
 }
+
 
 int db_delete_account(int account_id)
 {

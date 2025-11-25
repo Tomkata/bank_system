@@ -1180,6 +1180,8 @@ struct mg_str {
   size_t len;  // String length
 };
 
+
+
 // Using macro to avoid shadowing C++ struct constructor, see #1298
 #define mg_str(s) mg_str_s(s)
 
